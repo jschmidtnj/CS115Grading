@@ -177,6 +177,7 @@ if __name__ == '__main__':
 	courseurl = config["CourseURL"]
 	assignmentid = config["AssignmentId"]
 	gradesfile = config["GradesFile"]
+	gradeall = config["GradeAll"]
 	submissions = readgradesfile(gradesfile, ids, nmes)
 	nameswithspaces = config["NamesWithSpaces"]
 	mystudents = config["MyStudents"]
@@ -228,7 +229,7 @@ if __name__ == '__main__':
 		#print(json_sub)
 		name = json_sub['studentname']
 		canvas_student_id = findid(nameswithspaces, name)
-		if canvas_student_id != -1 and checkmystudent(name, mystudents):
+		if (canvas_student_id != -1 and gradeall) or (canvas_student_id != -1 and checkmystudent(name, mystudents)):
 			print(canvas_student_id, name)
 			studentgrading = {}
 			studentgrading['grade'] = json_sub['grade'].split('/')[0]
