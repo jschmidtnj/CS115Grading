@@ -147,6 +147,7 @@ def getallstudentdata(token, courseurl):
 	allstudents = getstudentshelper(url)
 	allstudentsidname = []
 	for student in allstudents:
+		#print(student)
 		newstudentdata = {}
 		newstudentdata['id'] = student['id']
 		name = student['name']
@@ -162,7 +163,14 @@ def findid(studentnames, name):
 			return student['id']
 	return -1
 
+def checkmystudent(name, mystudents):
+	for student in mystudents:
+		if student['name'] == name:
+			return True
+	return False
+
 if __name__ == '__main__':
+	changedconfig = False
 	configfile = open('config/config.json')
 	config = json.load(configfile)
 	canvastoken = config["CanvasAuthToken"]
@@ -171,6 +179,8 @@ if __name__ == '__main__':
 	gradesfile = config["GradesFile"]
 	submissions = readgradesfile(gradesfile, ids, nmes)
 	nameswithspaces = config["NamesWithSpaces"]
+	mystudents = config["MyStudents"]
+	namesfile = config["MyStudentsNamesFile"]
 	if nameswithspaces == []:
 		nameswithspaces = getallstudentdata(canvastoken, courseurl)
 		#PRINT ALL STUDENTS
@@ -183,17 +193,46 @@ if __name__ == '__main__':
 			f.seek(0)  # rewind
 			json.dump(data, f)
 			f.truncate()
+		changedconfig = True
+	if mystudents == []:
+		finalnames = []
+		with open(namesfile, "r") as f:
+			names = f.read().split('\n')
+			for thename in names:
+				if thename.strip() == "":
+					continue
+				print(thename)
+				firstlast = str(thename.lower().replace(' ','').replace(',',''))
+				studentname = {
+					"name": firstlast
+				}
+				finalnames.append(studentname)
+		mystudents = finalnames
+		with open('config/config.json', "r+") as f:
+			data = json.load(f)
+			tmp = data["MyStudents"]
+			data["MyStudents"] = mystudents
+
+			f.seek(0)  # rewind
+			json.dump(data, f)
+			f.truncate()
+		changedconfig = True
+	# pritty-print json config file
+	if changedconfig:
+		newconfigread = open('config/config.json', "r")
+		newconfigdata = json.load(newconfigread)
+		with open("config/config.json", "w") as configfilechange:
+			json.dump(newconfigdata, configfilechange, indent=4, sort_keys=True)
 	for sub in submissions:
 		json_sub = json.loads(sub)
 		#print(json_sub)
 		name = json_sub['studentname']
 		canvas_student_id = findid(nameswithspaces, name)
-		if canvas_student_id != -1:
-			#print(canvas_student_id)
+		if canvas_student_id != -1 and checkmystudent(name, mystudents):
+			print(canvas_student_id, name)
 			studentgrading = {}
 			studentgrading['grade'] = json_sub['grade'].split('/')[0]
 			studentgrading['comment'] = json_sub['comment']
 			studentgradingjson = json.dumps(studentgrading)
-			#print(studentgradingjson)
+			print(studentgradingjson)
 			#uploadgrade(canvastoken, courseurl, canvas_student_id, assignmentid, studentgradingjson)
-			break

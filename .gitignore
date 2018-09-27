@@ -111,3 +111,6 @@ data/
 
 # student identities
 student_identities.py
+
+# grading scripts
+115-scripts/

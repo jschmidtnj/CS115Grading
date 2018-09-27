@@ -1,0 +1,9 @@
+{
+    "AssignmentId": "<idnum>",
+    "CanvasAuthToken": "<token>",
+    "CourseURL": "https://sit.instructure.com/api/v1/courses/<coursenum>",
+    "GradesFile": "data/hwgrades.txt",
+    "MyStudents": [],
+    "MyStudentsNamesFile": "config/names.txt",
+    "NamesWithSpaces": []
+}
