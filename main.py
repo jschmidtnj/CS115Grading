@@ -32,11 +32,15 @@ def readgradesfile(filename, ids, names):
 		submission_json_data = {}
 		lines = submissions[i].split('\n')
 		del lines[0]
+		del lines[0]
+		del lines[0]
+		numdel = 3
 		#print(lines[0])
 		comment_string = ""
 		for j in range(len(lines)):
-			if lines[j] == "":
-				break
+			#print(j)
+			if lines[j].strip() == "":
+				continue
 			elif j <= 5:
 				entries_without_strip = lines[j].split('|')
 				entries_in_lines = []
@@ -44,6 +48,7 @@ def readgradesfile(filename, ids, names):
 				    entries_in_lines.append(elem.replace(' ',''))
 				#print(entries_in_lines[0])
 				if j == 0:
+					#print(lines[j])
 					#first line data
 					submission_json_data['timegrading'] = entries_in_lines[0].replace('Timeofgrading','')
 					submission_json_data['grade'] = entries_in_lines[1]
@@ -53,17 +58,19 @@ def readgradesfile(filename, ids, names):
 					field = entries_in_lines[0]
 					data = entries_in_lines[1].replace('points','')
 					submission_json_data[field] = data
-			else :
+			else:
 				try:
-					nextline = lines[j + 2]
+					nextline = lines[j + numdel]
 					comment_string = comment_string + lines[j] + '\n'
 				except IndexError:
 					#end of new line data
 					comment_string = comment_string + lines[j]
 					submission_json_data['comment'] = comment_string
 		if submission_json_data != {}:
+			#print(submission_json_data)
 			json_data = json.dumps(submission_json_data)
 			json_data_array.append(json_data)
+			#exit()
 		#break
 	#print(json_data_array)
 	return json_data_array
@@ -230,10 +237,10 @@ if __name__ == '__main__':
 		name = json_sub['studentname']
 		canvas_student_id = findid(nameswithspaces, name)
 		if (canvas_student_id != -1 and gradeall) or (canvas_student_id != -1 and checkmystudent(name, mystudents)):
-			print(canvas_student_id, name)
+			#print(canvas_student_id, name)
 			studentgrading = {}
 			studentgrading['grade'] = json_sub['grade'].split('/')[0]
 			studentgrading['comment'] = json_sub['comment']
 			studentgradingjson = json.dumps(studentgrading)
-			print(studentgradingjson)
-			#uploadgrade(canvastoken, courseurl, canvas_student_id, assignmentid, studentgradingjson)
+			#print(studentgradingjson)
+			uploadgrade(canvastoken, courseurl, canvas_student_id, assignmentid, studentgradingjson)
